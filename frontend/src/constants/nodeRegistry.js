@@ -22,7 +22,10 @@ export const STARTER_NODES = {
     label: 'LLM Node',
     description: 'Calls language model to generate response.',
     color: '#6366f1',
-    defaultParams: { model: 'gpt-4o-mini', temperature: 0.7 },
+    defaultParams: { provider: 'gemini', model: 'gemini-2.0-flash', temperature: 0.7, max_tokens: 2048 },
+    modelOptions: {
+      gemini: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+    },
   },
   output: {
     type: 'output',

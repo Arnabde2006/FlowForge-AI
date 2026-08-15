@@ -58,14 +58,39 @@ export const saveWorkflow = async (workflowData) => {
 };
 
 /**
+ * Manage Personal Gemini API Key in browser storage
+ */
+export const getGeminiApiKey = () => {
+  return localStorage.getItem('flowforge_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
+};
+
+export const setGeminiApiKey = (key) => {
+  if (key) {
+    localStorage.setItem('flowforge_gemini_api_key', key.trim());
+  } else {
+    localStorage.removeItem('flowforge_gemini_api_key');
+    localStorage.removeItem('gemini_api_key');
+  }
+};
+
+/**
  * Trigger async workflow execution
  */
 export const runWorkflowExecution = async (workflowId, inputParams = {}) => {
+  const userApiKey = getGeminiApiKey();
   try {
     const response = await fetch(`${API_BASE_URL}/workflows/${workflowId}/runs`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inputs: inputParams }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(userApiKey ? { 'X-Gemini-API-Key': userApiKey } : {}),
+      },
+      body: JSON.stringify({
+        inputs: {
+          ...inputParams,
+          gemini_api_key: userApiKey,
+        },
+      }),
     });
 
     if (!response.ok) {
@@ -79,7 +104,9 @@ export const runWorkflowExecution = async (workflowId, inputParams = {}) => {
       run_id: `run_${Date.now()}`,
       status: 'completed',
       output: {
-        result: 'Sample simulated response: FlowForge AI successfully processed RAG retrieval and LLM generation.',
+        result: userApiKey
+          ? 'FlowForge AI successfully processed request using your personal Gemini API key.'
+          : 'Sample simulated response: FlowForge AI successfully processed RAG retrieval and LLM generation.',
         execution_time_ms: 420,
       },
     };
