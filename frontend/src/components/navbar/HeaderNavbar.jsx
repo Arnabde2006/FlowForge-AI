@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Save, Play, Key, X, Check } from 'lucide-react';
 import { saveWorkflow, runWorkflowExecution, serializeWorkflowGraph, getGeminiApiKey, setGeminiApiKey, validateTemplateVariables } from '../../services/api';
 
-export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edges, theme, toggleTheme, onWorkflowExecuted }) {
+export default function HeaderNavbar({
+  workflowName,
+  setWorkflowName,
+  nodes,
+  edges,
+  theme,
+  toggleTheme,
+  onStartExecution,
+  onWorkflowExecuted,
+}) {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [keySavedAlert, setKeySavedAlert] = useState(false);
+  const [saveToast, setSaveToast] = useState(false);
 
   useEffect(() => {
     setApiKey(getGeminiApiKey());
@@ -29,32 +39,18 @@ export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edg
   const handleSave = async () => {
     const data = serializeWorkflowGraph(workflowName, nodes, edges);
     await saveWorkflow(data);
-
-    // Template variable validation check on save
-    const warnings = [];
-    nodes.forEach((node) => {
-      if (node.type === 'prompt' || node.type === 'promptTemplate') {
-        const templateStr = node.data?.params?.template || '';
-        const unknownVars = validateTemplateVariables(templateStr);
-        if (unknownVars.length > 0) {
-          warnings.push(`• Node "${node.data?.label || node.id}": Unknown variable(s) {{${unknownVars.join('}}, {{')}}}. Expected variables: {{input}}, {{question}}.`);
-        }
-      }
-    });
-
-    let msg = `Workflow Saved (${nodes.length} nodes, ${edges.length} edges)`;
-    if (warnings.length > 0) {
-      msg += `\n\n⚠️ Template Validation Warning:\n` + warnings.join('\n');
-    }
-    alert(msg);
+    setSaveToast(true);
+    setTimeout(() => setSaveToast(false), 2500);
   };
 
   const handleRun = async () => {
+    if (onStartExecution) {
+      onStartExecution();
+    }
     const res = await runWorkflowExecution('wf_dev', {}, nodes);
     if (onWorkflowExecuted) {
-      onWorkflowExecuted(res.output);
+      onWorkflowExecuted(res, nodes);
     }
-    alert(`Execution Status: ${res.status}\nOutput: ${typeof res.output === 'object' ? res.output.result || JSON.stringify(res.output) : res.output}`);
   };
 
   const isKeySet = Boolean(apiKey.trim());
@@ -171,8 +167,8 @@ export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edg
             gap: '6px',
           }}
         >
-          <Save size={14} />
-          <span>Save Workflow</span>
+          {saveToast ? <Check size={14} color="#10b981" /> : <Save size={14} />}
+          <span>{saveToast ? 'Saved!' : 'Save Workflow'}</span>
         </button>
 
         <button

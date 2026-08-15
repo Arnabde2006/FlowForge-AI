@@ -100,31 +100,67 @@ export function useWorkflowCanvas() {
     [setNodes, setEdges]
   );
 
+  // Set running state on all nodes when execution starts
+  const setWorkflowRunning = useCallback(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          executionStatus: 'running',
+          error: null,
+        },
+      }))
+    );
+    setSelectedNode((curr) =>
+      curr
+        ? {
+            ...curr,
+            data: {
+              ...curr.data,
+              executionStatus: 'running',
+              error: null,
+            },
+          }
+        : null
+    );
+  }, [setNodes]);
+
+  // Update stored execution results per node
   const updateExecutionResults = useCallback(
-    (outputResult) => {
+    (res, currentNodes = []) => {
+      const isError = res.status === 'error';
       const outputText =
-        typeof outputResult === 'object'
-          ? outputResult.result || JSON.stringify(outputResult)
-          : String(outputResult);
+        typeof res.output === 'object'
+          ? res.output.result || JSON.stringify(res.output)
+          : String(res.output || '');
 
       setNodes((nds) =>
         nds.map((node) => {
-          if (node.type === 'output') {
-            const updated = {
-              ...node,
-              data: {
-                ...node.data,
-                output: outputText,
-                params: {
-                  ...node.data?.params,
-                  output: outputText,
-                },
-              },
-            };
-            setSelectedNode((curr) => (curr?.id === node.id ? updated : curr));
-            return updated;
+          let nodeOutput = null;
+          let status = isError ? 'error' : 'completed';
+          let nodeErr = isError ? outputText : null;
+
+          if (node.type === 'input') {
+            nodeOutput = node.data?.params?.query || '';
+          } else if (node.type === 'prompt' || node.type === 'promptTemplate') {
+            nodeOutput = node.data?.params?.template || '';
+          } else if (node.type === 'llm' || node.type === 'output') {
+            nodeOutput = outputText;
           }
-          return node;
+
+          const updated = {
+            ...node,
+            data: {
+              ...node.data,
+              executionStatus: status,
+              output: nodeOutput,
+              error: nodeErr,
+            },
+          };
+
+          setSelectedNode((curr) => (curr?.id === node.id ? updated : curr));
+          return updated;
         })
       );
     },
@@ -143,6 +179,7 @@ export function useWorkflowCanvas() {
     onNodeClick,
     onPaneClick,
     updateNodeParams,
+    setWorkflowRunning,
     updateExecutionResults,
     addNode,
     deleteNode,

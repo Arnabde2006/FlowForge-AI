@@ -10,6 +10,8 @@ export default function App() {
   const [workflowName, setWorkflowName] = useState('workflow');
   const [theme, setTheme] = useState('light'); // Light mode by default
 
+  const [activeTab, setActiveTab] = useState('params');
+
   const {
     nodes,
     edges,
@@ -22,6 +24,7 @@ export default function App() {
     onNodeClick,
     onPaneClick,
     updateNodeParams,
+    setWorkflowRunning,
     updateExecutionResults,
     addNode,
     deleteNode,
@@ -35,6 +38,16 @@ export default function App() {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
+  const handleStartExecution = () => {
+    setWorkflowRunning();
+    setActiveTab('output');
+  };
+
+  const handleWorkflowExecuted = (res, currentNodes) => {
+    updateExecutionResults(res, currentNodes);
+    setActiveTab('output');
+  };
+
   return (
     <div className="app-container">
       <HeaderNavbar
@@ -44,7 +57,8 @@ export default function App() {
         edges={edges}
         theme={theme}
         toggleTheme={toggleTheme}
-        onWorkflowExecuted={updateExecutionResults}
+        onStartExecution={handleStartExecution}
+        onWorkflowExecuted={handleWorkflowExecuted}
       />
       <div className="workspace">
         <NodePalette onAddNode={addNode} />
@@ -63,6 +77,8 @@ export default function App() {
           selectedNode={selectedNode}
           updateNodeParams={updateNodeParams}
           deleteNode={deleteNode}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
         />
       </div>
     </div>
