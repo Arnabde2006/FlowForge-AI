@@ -43,9 +43,9 @@ export const STARTER_NODES = {
     color: '#6366f1',
     inputs: ['prompt'],
     outputs: ['response'],
-    defaultParams: { provider: 'gemini', model: 'gemini-2.0-flash', temperature: 0.7, max_tokens: 2048 },
+    defaultParams: { provider: 'gemini', model: 'gemini-2.5-flash', temperature: 0.7, max_tokens: 2048 },
     modelOptions: {
-      gemini: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+      gemini: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-2.0-flash-exp'],
     },
   },
   output: {
