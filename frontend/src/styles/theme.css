@@ -1,0 +1,87 @@
+/* FlowForge AI Theme Tokens (Light & Dark Mode) */
+
+/* Default: Light Mode */
+:root, [data-theme="light"] {
+  --bg-main: #f8fafc;
+  --bg-panel: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #f1f5f9;
+  --border-color: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-glow: rgba(79, 70, 229, 0.15);
+  --dots-color: #cbd5e1;
+  --canvas-bg: #f8fafc;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --bg-main: #090d16;
+  --bg-panel: #111827;
+  --bg-card: #1f293d;
+  --bg-hover: #2d374d;
+  --border-color: #1f293d;
+  --border-strong: #374151;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99, 102, 241, 0.25);
+  --dots-color: #1f293d;
+  --canvas-bg: #090d16;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 50px);
+  position: relative;
+}
+
+/* React Flow Theming */
+.react-flow {
+  background-color: var(--canvas-bg) !important;
+}
+
+.react-flow__controls {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.react-flow__controls-button {
+  background-color: var(--bg-panel) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  fill: var(--text-main) !important;
+}
+
+.react-flow__edge-path {
+  stroke: var(--border-strong) !important;
+  stroke-width: 2 !important;
+}
