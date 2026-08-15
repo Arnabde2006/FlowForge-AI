@@ -22,6 +22,7 @@ export default function App() {
     onNodeClick,
     onPaneClick,
     updateNodeParams,
+    updateExecutionResults,
     addNode,
     deleteNode,
   } = useWorkflowCanvas();
@@ -43,6 +44,7 @@ export default function App() {
         edges={edges}
         theme={theme}
         toggleTheme={toggleTheme}
+        onWorkflowExecuted={updateExecutionResults}
       />
       <div className="workspace">
         <NodePalette onAddNode={addNode} />

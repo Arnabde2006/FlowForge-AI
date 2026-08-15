@@ -348,6 +348,39 @@ export default function NodeInspector({ selectedNode, updateNodeParams, deleteNo
           </div>
         )}
 
+        {/* Output Node Parameters */}
+        {nodeType === 'output' && (
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: 'var(--text-muted)' }}>
+              Generated Output
+            </label>
+            <div
+              style={{
+                padding: '10px',
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                fontSize: '12px',
+                lineHeight: '1.5',
+                color: 'var(--text-main)',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                minHeight: '80px',
+                maxHeight: '250px',
+                overflowY: 'auto',
+              }}
+            >
+              {(selectedNode.data?.output || selectedNode.data?.params?.output || params.output) ? (
+                selectedNode.data?.output || selectedNode.data?.params?.output || params.output
+              ) : (
+                <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  No output generated yet. Click "Run Workflow" in the top bar to execute the workflow.
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Prompt Node / Prompt Template Parameters */}
         {(nodeType === 'prompt' || nodeType === 'promptTemplate') && (
           <div style={{ marginBottom: '14px' }}>

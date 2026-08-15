@@ -100,6 +100,37 @@ export function useWorkflowCanvas() {
     [setNodes, setEdges]
   );
 
+  const updateExecutionResults = useCallback(
+    (outputResult) => {
+      const outputText =
+        typeof outputResult === 'object'
+          ? outputResult.result || JSON.stringify(outputResult)
+          : String(outputResult);
+
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.type === 'output') {
+            const updated = {
+              ...node,
+              data: {
+                ...node.data,
+                output: outputText,
+                params: {
+                  ...node.data?.params,
+                  output: outputText,
+                },
+              },
+            };
+            setSelectedNode((curr) => (curr?.id === node.id ? updated : curr));
+            return updated;
+          }
+          return node;
+        })
+      );
+    },
+    [setNodes]
+  );
+
   return {
     nodes,
     edges,
@@ -112,6 +143,7 @@ export function useWorkflowCanvas() {
     onNodeClick,
     onPaneClick,
     updateNodeParams,
+    updateExecutionResults,
     addNode,
     deleteNode,
   };

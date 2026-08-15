@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Save, Play, Key, X, Check } from 'lucide-react';
 import { saveWorkflow, runWorkflowExecution, serializeWorkflowGraph, getGeminiApiKey, setGeminiApiKey, validateTemplateVariables } from '../../services/api';
 
-export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edges, theme, toggleTheme }) {
+export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edges, theme, toggleTheme, onWorkflowExecuted }) {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
@@ -51,7 +51,10 @@ export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edg
 
   const handleRun = async () => {
     const res = await runWorkflowExecution('wf_dev');
-    alert(`Execution Status: ${res.status}\nOutput: ${JSON.stringify(res.output)}`);
+    if (onWorkflowExecuted) {
+      onWorkflowExecuted(res.output);
+    }
+    alert(`Execution Status: ${res.status}\nOutput: ${typeof res.output === 'object' ? res.output.result || JSON.stringify(res.output) : res.output}`);
   };
 
   const isKeySet = Boolean(apiKey.trim());
