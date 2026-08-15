@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Save, Play, Key, X, Check } from 'lucide-react';
-import { saveWorkflow, runWorkflowExecution, serializeWorkflowGraph, getGeminiApiKey, setGeminiApiKey } from '../../services/api';
+import { saveWorkflow, runWorkflowExecution, serializeWorkflowGraph, getGeminiApiKey, setGeminiApiKey, validateTemplateVariables } from '../../services/api';
 
 export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edges, theme, toggleTheme }) {
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -29,7 +29,24 @@ export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edg
   const handleSave = async () => {
     const data = serializeWorkflowGraph(workflowName, nodes, edges);
     await saveWorkflow(data);
-    alert(`Workflow Saved (${nodes.length} nodes, ${edges.length} edges)`);
+
+    // Template variable validation check on save
+    const warnings = [];
+    nodes.forEach((node) => {
+      if (node.type === 'prompt' || node.type === 'promptTemplate') {
+        const templateStr = node.data?.params?.template || '';
+        const unknownVars = validateTemplateVariables(templateStr);
+        if (unknownVars.length > 0) {
+          warnings.push(`• Node "${node.data?.label || node.id}": Unknown variable(s) {{${unknownVars.join('}}, {{')}}}. Expected variables: {{input}}, {{question}}.`);
+        }
+      }
+    });
+
+    let msg = `Workflow Saved (${nodes.length} nodes, ${edges.length} edges)`;
+    if (warnings.length > 0) {
+      msg += `\n\n⚠️ Template Validation Warning:\n` + warnings.join('\n');
+    }
+    alert(msg);
   };
 
   const handleRun = async () => {

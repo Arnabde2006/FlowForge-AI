@@ -6,6 +6,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 /**
+ * Validates template string variables using regex /\{\{(\w+)\}\}/g
+ * Returns list of unknown variable names outside ['input', 'question']
+ */
+export const validateTemplateVariables = (templateStr) => {
+  if (!templateStr) return [];
+  const allowedVars = ['input', 'question'];
+  const regex = /\{\{(\w+)\}\}/g;
+  const unknownVars = new Set();
+  let match;
+  while ((match = regex.exec(templateStr)) !== null) {
+    const varName = match[1];
+    if (!allowedVars.includes(varName)) {
+      unknownVars.add(varName);
+    }
+  }
+  return Array.from(unknownVars);
+};
+
+/**
  * Transforms ReactFlow nodes & edges into FlowForge DAG JSON schema
  */
 export const serializeWorkflowGraph = (name, nodes, edges) => {

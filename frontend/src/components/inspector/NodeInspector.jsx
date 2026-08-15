@@ -1,6 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { STARTER_NODES } from '../../constants/nodeRegistry';
-import { getGeminiApiKey, setGeminiApiKey } from '../../services/api';
+import { getGeminiApiKey, setGeminiApiKey, validateTemplateVariables } from '../../services/api';
+
+function renderHighlightedTemplate(templateStr) {
+  if (!templateStr) return null;
+  // Matches {{input}}, {{question}}, or any {{variable}} or {variable}
+  const parts = templateStr.split(/(\{\{[^{}]+\}\}|\{[^{}]+\})/g);
+
+  return parts.map((part, index) => {
+    if (/^(\{\{[^{}]+\}\}|\{[^{}]+\})$/.test(part)) {
+      return (
+        <span
+          key={index}
+          style={{
+            background: 'rgba(99, 102, 241, 0.15)',
+            color: 'var(--primary, #6366f1)',
+            padding: '1px 5px',
+            borderRadius: '4px',
+            fontWeight: 600,
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            border: '1px solid rgba(99, 102, 241, 0.4)',
+            margin: '0 2px',
+            display: 'inline-block',
+          }}
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
 
 export default function NodeInspector({ selectedNode, updateNodeParams, deleteNode }) {
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -317,17 +348,17 @@ export default function NodeInspector({ selectedNode, updateNodeParams, deleteNo
           </div>
         )}
 
-        {/* Prompt Node Parameters */}
-        {nodeType === 'prompt' && (
+        {/* Prompt Node / Prompt Template Parameters */}
+        {(nodeType === 'prompt' || nodeType === 'promptTemplate') && (
           <div style={{ marginBottom: '14px' }}>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: 'var(--text-muted)' }}>
               Prompt Template
             </label>
             <textarea
-              rows={4}
+              rows={5}
               value={params.template || ''}
               onChange={(e) => updateNodeParams(selectedNode.id, { ...params, template: e.target.value })}
-              placeholder="User question: {query}"
+              placeholder="Context: {{input}}\nQuestion: {{question}}"
               style={{
                 width: '100%',
                 padding: '8px 10px',
@@ -340,6 +371,50 @@ export default function NodeInspector({ selectedNode, updateNodeParams, deleteNo
                 resize: 'vertical',
               }}
             />
+
+            {/* Template Variable Validation Warning */}
+            {validateTemplateVariables(params.template || '').length > 0 && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  padding: '8px 10px',
+                  background: '#f59e0b15',
+                  border: '1px solid #f59e0b',
+                  borderRadius: '6px',
+                  color: '#f59e0b',
+                  fontSize: '11px',
+                  lineHeight: '1.4',
+                }}
+              >
+                ⚠️ <strong>Template Warning:</strong> Unknown variable(s){' '}
+                <code>{validateTemplateVariables(params.template || '').map((v) => `{{${v}}}`).join(', ')}</code>.
+                Expected variables: <code>{"{{input}}"}</code>, <code>{"{{question}}"}</code>.
+              </div>
+            )}
+
+            {/* Read-only Live Template Preview */}
+            <div style={{ marginTop: '10px' }}>
+              <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', color: 'var(--text-muted)' }}>
+                Live Template Preview
+              </label>
+              <div
+                style={{
+                  padding: '10px',
+                  background: 'var(--bg-main)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  lineHeight: '1.6',
+                  color: 'var(--text-main)',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  maxHeight: '180px',
+                  overflowY: 'auto',
+                }}
+              >
+                {renderHighlightedTemplate(params.template || '')}
+              </div>
+            </div>
           </div>
         )}
       </div>
