@@ -50,7 +50,7 @@ export default function HeaderNavbar({ workflowName, setWorkflowName, nodes, edg
   };
 
   const handleRun = async () => {
-    const res = await runWorkflowExecution('wf_dev');
+    const res = await runWorkflowExecution('wf_dev', {}, nodes);
     if (onWorkflowExecuted) {
       onWorkflowExecuted(res.output);
     }
