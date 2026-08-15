@@ -117,7 +117,7 @@ export const runWorkflowExecution = async (workflowId, inputParams = {}, nodes =
 
   // Extract LLM node settings
   const llmNode = nodes.find((n) => n.type === 'llm');
-  const modelName = llmNode?.data?.params?.model || 'gemini-2.0-flash';
+  const modelName = llmNode?.data?.params?.model || 'gemini-flash-lite-latest';
   const nodeApiKey = llmNode?.data?.params?.apiKey;
   const effectiveApiKey = nodeApiKey || userApiKey;
 
@@ -149,7 +149,7 @@ export const runWorkflowExecution = async (workflowId, inputParams = {}, nodes =
 
   // If user provided a Gemini API Key, execute real Google Gemini API call
   if (effectiveApiKey) {
-    const candidateModels = Array.from(new Set([modelName, 'gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-pro']));
+    const candidateModels = Array.from(new Set([modelName, 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-flash-latest']));
     let lastErrorMsg = '';
 
     for (const targetModel of candidateModels) {
